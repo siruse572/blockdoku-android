@@ -740,6 +740,8 @@ class GameActivity : ComponentActivity() {
                         if (availableBlocks.all { it == null }) {
                             setupInitialBlocks()
                         }
+                        // 모든 상태가 확정된 뒤 게임 오버 체크
+                        checkGameOver()
                     }
                     .start()
 
