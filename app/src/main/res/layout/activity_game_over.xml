@@ -141,31 +141,7 @@
 
                         </LinearLayout>
 
-                        <!-- Average Score -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/average_score"
-                                android:textSize="@dimen/text_xs"
-                                android:textColor="@color/gray_600" />
-
-                            <TextView
-                                android:id="@+id/txtAverageScore"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="1,820"
-                                android:textSize="@dimen/text_lg"
-                                android:textColor="@color/gray_700"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
 
                     </LinearLayout>
 

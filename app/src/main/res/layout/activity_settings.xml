@@ -8,6 +8,22 @@
     android:padding="@dimen/spacing_6"
     android:id="@+id/settings">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnToHomeSettings"
+        style="@style/Widget.Material3.Button.Icon"
+        android:layout_width="@dimen/icon_button_size"
+        android:layout_height="@dimen/icon_button_size"
+        app:backgroundTint="@color/white"
+        app:icon="@drawable/ic_home"
+        app:iconTint="@color/gray_700"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="24dp"
+        app:cornerRadius="@dimen/radius_lg"
+        app:elevation="@dimen/elevation_md"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Title -->
     <TextView
         android:id="@+id/txtTitle"
@@ -379,7 +395,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/total_score"
+                                android:text="@string/all_time_best"
                                 android:textSize="@dimen/text_xs"
                                 android:textColor="@color/gray_600" />
 

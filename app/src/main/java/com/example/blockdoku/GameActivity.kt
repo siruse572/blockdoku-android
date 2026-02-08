@@ -1,6 +1,7 @@
 package com.example.blockdoku
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.DragEvent
@@ -92,6 +93,7 @@ class GameActivity : ComponentActivity() {
      */
     private val blockContainers = mutableListOf<FrameLayout>()
 
+
     // ==================== 생명주기 ====================
 
     @SuppressLint("MissingInflatedId")
@@ -119,6 +121,7 @@ class GameActivity : ComponentActivity() {
         // 버튼 리스너 설정
         setupButtons()
     }
+
 
     /**
      * UI 요소 초기화
@@ -219,11 +222,6 @@ class GameActivity : ComponentActivity() {
                             // 5개마다 폭탄 생성
                             if (blocksPlaced % 5 == 0) {
                                 spawnBomb()
-                            }
-
-                            // 3개 블록 모두 사용 시 새 블록 생성
-                            if (availableBlocks.all { it == null }) {
-                                setupInitialBlocks()
                             }
 
                             // 게임 오버 체크
@@ -381,7 +379,7 @@ class GameActivity : ComponentActivity() {
 
         // 가로 라인 체크 (9개)
         for (row in 0..8) {
-            if ((0..8).all { col -> boardState[row * 9 + col] == 1 }) {
+            if ((0..8).all { col -> boardState[row * 9 + col] == 1 || boardState[row * 9 + col] == 2}) {
                 for (col in 0..8) {
                     toClear.add(row * 9 + col)
                 }
@@ -390,7 +388,7 @@ class GameActivity : ComponentActivity() {
 
         // 세로 라인 체크 (9개)
         for (col in 0..8) {
-            if ((0..8).all { row -> boardState[row * 9 + col] == 1 }) {
+            if ((0..8).all { row -> boardState[row * 9 + col] == 1 || boardState[row * 9 + col] == 2}) {
                 for (row in 0..8) {
                     toClear.add(row * 9 + col)
                 }
@@ -404,7 +402,7 @@ class GameActivity : ComponentActivity() {
                 for (row in 0..2) {
                     for (col in 0..2) {
                         val index = (boxRow * 3 + row) * 9 + (boxCol * 3 + col)
-                        if (boardState[index] != 1) {
+                        if (boardState[index] != 1 && boardState[index] != 2) {
                             isFull = false
                             break
                         }
@@ -737,6 +735,11 @@ class GameActivity : ComponentActivity() {
                     .withEndAction {
                         container.removeAllViews()
                         container.alpha = 1f  // 다음 블록 위해 불투명도 복원
+                        // ✅ 여기서 체크
+                        // 3개 블록 모두 사용 시 새 블록 생성
+                        if (availableBlocks.all { it == null }) {
+                            setupInitialBlocks()
+                        }
                     }
                     .start()
 
@@ -769,25 +772,15 @@ class GameActivity : ComponentActivity() {
 
         // 배치 가능한 곳이 없으면 게임 오버
         if (!hasValidMove) {
-            showGameOverDialog()
+            goToGameOver()
         }
     }
 
-    /**
-     * 게임 오버 대화상자 표시
-     */
-    private fun showGameOverDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("게임 오버")
-            .setMessage("최종 점수: $currentScore")
-            .setPositiveButton("재시작") { _, _ ->
-                restartGame()
-            }
-            .setNegativeButton("종료") { _, _ ->
-                finish()
-            }
-            .setCancelable(false)  // 뒤로가기로 닫기 방지
-            .show()
+    private fun goToGameOver() {
+        val intent = Intent(this, GameOverActivity::class.java)
+        intent.putExtra("score", currentScore)
+        startActivity(intent)
+        //finish()
     }
 
     /**
