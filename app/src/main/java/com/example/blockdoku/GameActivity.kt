@@ -610,8 +610,26 @@ class GameActivity : ComponentActivity() {
         val view = blockViews[index]
         if (view != null) {
             // 폭발 효과 (빨간색 X 표시)
-            view.setBackgroundResource(R.drawable.gradient_bomb_exploded)
+            // 기존 폭탄 View 제거
+            gameBoardContainer.removeView(view)
+            blockViews.remove(index)
         }
+        val blackView = View(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                dp(blockSizeDp).toInt(),
+                dp(blockSizeDp).toInt()
+            )
+            setBackgroundResource(R.drawable.bg_black_rounded)  //파괴된 폭탄장소는 검정색 처리
+        }
+        val row = index / 9
+        val col = index % 9
+        val offset = (dp(cellSizeDp) - dp(blockSizeDp)) / 2
+        blackView.x = col * dp(cellSizeDp) + offset
+        blackView.y = row * dp(cellSizeDp) + offset
+
+        // 보드에 추가
+        gameBoardContainer.addView(blackView)
+        blockViews[index] = blackView
     }
 
     // ==================== 초기 블록 생성 ====================
