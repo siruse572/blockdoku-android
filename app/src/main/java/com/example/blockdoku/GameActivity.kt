@@ -120,6 +120,10 @@ class GameActivity : ComponentActivity() {
 
         // 버튼 리스너 설정
         setupButtons()
+
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)  //음소거 설정
+        val isSoundOn = prefs.getBoolean("sound_enabled", true)
+        BGMManager.setMuted(!isSoundOn)
     }
 
 
@@ -857,5 +861,18 @@ class GameActivity : ComponentActivity() {
      */
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
+    }
+    override fun onResume() {
+        super.onResume()
+        BGMManager.playBGM(this, R.raw.game_music)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        BGMManager.playBGM(this, R.raw.main_music)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

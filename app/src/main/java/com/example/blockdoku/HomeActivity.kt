@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.button.MaterialButton
+import com.example.blockdoku.BGMManager
 
 /**
  * 홈 화면 (메인 메뉴)
@@ -33,6 +34,12 @@ class HomeActivity : ComponentActivity() {
 
         // 버튼 리스너 설정
         setupButtons()
+
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)  //음소거 기능
+        val isSoundOn = prefs.getBoolean("sound_enabled", true)
+        BGMManager.setMuted(!isSoundOn)
+
+        BGMManager.playBGM(this, R.raw.main_music)
     }
 
     /**
