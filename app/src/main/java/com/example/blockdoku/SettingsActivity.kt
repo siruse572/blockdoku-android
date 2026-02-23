@@ -23,9 +23,13 @@ class SettingsActivity : ComponentActivity() {
         // 사운드 스위치 설정
         setupSoundSwitch()
 
+        //SFX초기화
+        SFXManager.init(this)
+
         // 홈 버튼 누르면 홈액티비티로 가기
         val btnToHomeSettings = findViewById<Button>(R.id.btnToHomeSettings)
         btnToHomeSettings.setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
             finish()

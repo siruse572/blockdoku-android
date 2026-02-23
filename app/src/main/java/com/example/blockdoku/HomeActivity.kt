@@ -40,6 +40,9 @@ class HomeActivity : ComponentActivity() {
         BGMManager.setMuted(!isSoundOn)
 
         BGMManager.playBGM(this, R.raw.main_music)
+
+        //SFX초기화
+        SFXManager.init(this)
     }
 
     /**
@@ -48,21 +51,25 @@ class HomeActivity : ComponentActivity() {
     private fun setupButtons() {
         // 게임 시작 버튼
         findViewById<MaterialButton>(R.id.btnStartGame).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             startGame()
         }
 
         // 튜토리얼 버튼
         findViewById<MaterialButton>(R.id.btnTutorial).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             showTutorial()
         }
 
         // 최고 점수 버튼
         findViewById<MaterialButton>(R.id.btnHighScore).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             showHighScores()
         }
 
         // 설정 버튼
         findViewById<MaterialButton>(R.id.btnSettings).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             showSettings()
         }
     }

@@ -29,9 +29,13 @@ class GameOverActivity : ComponentActivity() {
         val txtFinalScore = findViewById<TextView>(R.id.txtFinalScore)
         txtFinalScore.text = score.toString()
 
+        //SFX초기화
+        SFXManager.init(this)
+
         //홈 버튼 누르면 홈액티비티로 가기
         val btnGoHome = findViewById<Button>(R.id.btnGoHome)
         btnGoHome.setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
             finish() // 게임오버 화면 종료
@@ -40,6 +44,7 @@ class GameOverActivity : ComponentActivity() {
         //다시하기 버튼 누르면 게임액티비티로 가기
         val btnPlayAgain = findViewById<Button>(R.id.btnPlayAgain)
         btnPlayAgain.setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             val intent = Intent(this, GameActivity::class.java)
             startActivity(intent)
             finish() // 게임오버 화면 종료

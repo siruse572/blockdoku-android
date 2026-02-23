@@ -109,6 +109,9 @@ class GameActivity : ComponentActivity() {
             insets
         }
 
+        //SFX초기화
+        SFXManager.init(this)
+
         // UI 요소 초기화
         initializeUI()
 
@@ -147,11 +150,13 @@ class GameActivity : ComponentActivity() {
     private fun setupButtons() {
         // 홈 버튼 - 게임 종료
         findViewById<MaterialButton>(R.id.btnHome).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             finish()
         }
 
         // 재시작 버튼 - 게임 리셋
         findViewById<MaterialButton>(R.id.btnRestart).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             restartGame()
         }
     }
@@ -167,6 +172,7 @@ class GameActivity : ComponentActivity() {
             when (event.action) {
                 // 드래그 시작
                 DragEvent.ACTION_DRAG_STARTED -> {
+                    SFXManager.playClick(this)//클릭음 재생
                     true
                 }
 
@@ -230,6 +236,11 @@ class GameActivity : ComponentActivity() {
 
                             // 게임 오버 체크
                             checkGameOver()
+                        }
+                        //잘못 설치 했을 때
+                        else
+                        {
+                            SFXManager.playError(this)//에러음 재생
                         }
                     }
                     true
@@ -380,12 +391,14 @@ class GameActivity : ComponentActivity() {
      */
     private fun checkAndClearLines() {
         val toClear = mutableSetOf<Int>()
+        var LineClearCheck = false //라인클리어음 한번만 재생시키기 위한 변수
 
         // 가로 라인 체크 (9개)
         for (row in 0..8) {
             if ((0..8).all { col -> boardState[row * 9 + col] == 1 || boardState[row * 9 + col] == 2}) {
                 for (col in 0..8) {
                     toClear.add(row * 9 + col)
+                    LineClearCheck = true
                 }
             }
         }
@@ -395,6 +408,7 @@ class GameActivity : ComponentActivity() {
             if ((0..8).all { row -> boardState[row * 9 + col] == 1 || boardState[row * 9 + col] == 2}) {
                 for (row in 0..8) {
                     toClear.add(row * 9 + col)
+                    LineClearCheck = true
                 }
             }
         }
@@ -408,6 +422,7 @@ class GameActivity : ComponentActivity() {
                         val index = (boxRow * 3 + row) * 9 + (boxCol * 3 + col)
                         if (boardState[index] != 1 && boardState[index] != 2) {
                             isFull = false
+                            LineClearCheck = true
                             break
                         }
                     }
@@ -418,6 +433,7 @@ class GameActivity : ComponentActivity() {
                     for (row in 0..2) {
                         for (col in 0..2) {
                             toClear.add((boxRow * 3 + row) * 9 + (boxCol * 3 + col))
+                            LineClearCheck = true
                         }
                     }
                 }
@@ -430,6 +446,13 @@ class GameActivity : ComponentActivity() {
         var bombBonusScore = 0     // 폭탄 타이머 보너스 점수
 
         for (index in toClear) {
+
+            if (LineClearCheck == true)
+            {
+                SFXManager.playLineClear(this)//라인클리어음 재생
+                LineClearCheck = false
+            }
+
             when (boardState[index]) {
                 1 -> {
                     // 일반 블록 제거
@@ -452,6 +475,7 @@ class GameActivity : ComponentActivity() {
             currentScore += score
             txtCurrentScore.text = currentScore.toString()
         }
+
     }
 
     /**
@@ -564,6 +588,7 @@ class GameActivity : ComponentActivity() {
             if (newTimer <= 0) {
                 // 타이머 0 → 폭발
                 toExplode.add(index)
+                SFXManager.playBomb(this)//폭탄음 재생
             } else {
                 // 타이머 업데이트
                 bombTimers[index] = newTimer
@@ -797,6 +822,7 @@ class GameActivity : ComponentActivity() {
         // 배치 가능한 곳이 없으면 게임 오버
         if (!hasValidMove) {
             goToGameOver()
+            SFXManager.playClear(this)//게임클리어음 재생
         }
     }
 

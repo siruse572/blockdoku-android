@@ -18,10 +18,13 @@ class HighScoreActivity : ComponentActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        //SFX초기화
+        SFXManager.init(this)
 
         //홈 버튼 누르면 홈액티비티로 가기
         val btnToHomeHighScore = findViewById<Button>(R.id.btnToHomeHighScore)
         btnToHomeHighScore.setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
             finish() //화면 종료
@@ -30,6 +33,7 @@ class HighScoreActivity : ComponentActivity() {
         //새 게임 시작 버튼 누르면 게임액티비티로 가기
         val btnNewGame = findViewById<Button>(R.id.btnNewGame)
         btnNewGame.setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             val intent = Intent(this, GameActivity::class.java)
             startActivity(intent)
             finish() //화면 종료

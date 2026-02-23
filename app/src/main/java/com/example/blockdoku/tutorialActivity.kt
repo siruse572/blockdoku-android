@@ -44,6 +44,9 @@ class tutorialActivity : ComponentActivity() {
 
         // 버튼 리스너 설정
         setupButtons()
+
+        //SFX초기화
+        SFXManager.init(this)
     }
 
     /**
@@ -138,11 +141,13 @@ class tutorialActivity : ComponentActivity() {
     private fun setupButtons() {
         // 건너뛰기 버튼 → 홈으로
         findViewById<MaterialButton>(R.id.btnSkip).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             goToHome()
         }
 
         // 다음 버튼 → 폭탄 튜토리얼
         findViewById<MaterialButton>(R.id.btnNext).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             goToBombTutorial()
         }
     }

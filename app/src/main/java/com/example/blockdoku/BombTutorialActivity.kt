@@ -23,6 +23,9 @@ class BombTutorialActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_bomb_tutorial)
 
+        //SFX초기화
+        SFXManager.init(this)
+
         // 시스템 바 패딩 설정
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.bomb_tutorial)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -32,6 +35,7 @@ class BombTutorialActivity : ComponentActivity() {
 
         // 시작 버튼 리스너
         findViewById<MaterialButton>(R.id.btnStart).setOnClickListener {
+            SFXManager.playClick(this)//클릭음 재생
             startGame()
         }
     }
