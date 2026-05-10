@@ -30,7 +30,9 @@ class tutorialActivity : ComponentActivity() {
         setContentView(R.layout.activity_tutorial)
 
         // 시스템 바 패딩 설정
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.tutorial)) { v, insets ->
+        val rootView = findViewById<View>(R.id.tutorial)
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
@@ -45,7 +47,7 @@ class tutorialActivity : ComponentActivity() {
         // 버튼 리스너 설정
         setupButtons()
 
-        //SFX초기화
+        // SFX 초기화
         SFXManager.init(this)
     }
 
@@ -70,17 +72,12 @@ class tutorialActivity : ComponentActivity() {
         placeBlock(boardContainer, 7, 8, R.drawable.gradient_block_purple)
 
         // 폭탄 2개
-        placeBomb(boardContainer, 6, 4, "7")  // 안전 (초록)
-        placeBomb(boardContainer, 7, 1, "3")  // 주의 (노랑)
+        placeBomb(boardContainer, 6, 4, "7")
+        placeBomb(boardContainer, 7, 1, "3")
     }
 
     /**
      * 블록 배치
-     *
-     * @param container 보드 컨테이너
-     * @param row 행 위치 (0~8)
-     * @param col 열 위치 (0~8)
-     * @param drawableRes 블록 배경 리소스
      */
     private fun placeBlock(
         container: FrameLayout,
@@ -96,7 +93,6 @@ class tutorialActivity : ComponentActivity() {
             background = getDrawable(drawableRes)
         }
 
-        // 칸 중앙에 배치하기 위한 오프셋
         val offset = (dp(cellSizeDp) - dp(blockSizeDp)) / 2
 
         block.x = col * dp(cellSizeDp) + offset
@@ -107,11 +103,6 @@ class tutorialActivity : ComponentActivity() {
 
     /**
      * 폭탄 배치
-     *
-     * @param container 보드 컨테이너
-     * @param row 행 위치 (0~8)
-     * @param col 열 위치 (0~8)
-     * @param timer 타이머 숫자 (문자열)
      */
     private fun placeBomb(
         container: FrameLayout,
@@ -119,14 +110,12 @@ class tutorialActivity : ComponentActivity() {
         col: Int,
         timer: String
     ) {
-        // 폭탄 뷰 인플레이트
         val bombView = layoutInflater.inflate(
             R.layout.view_bomb_block,
             container,
             false
         )
 
-        // 칸 중앙에 배치하기 위한 오프셋
         val offset = (dp(cellSizeDp) - dp(blockSizeDp)) / 2
 
         bombView.x = col * dp(cellSizeDp) + offset
@@ -139,15 +128,13 @@ class tutorialActivity : ComponentActivity() {
      * 버튼 리스너 설정
      */
     private fun setupButtons() {
-        // 건너뛰기 버튼 → 홈으로
         findViewById<MaterialButton>(R.id.btnSkip).setOnClickListener {
-            SFXManager.playClick(this)//클릭음 재생
+            SFXManager.playClick(this)
             goToHome()
         }
 
-        // 다음 버튼 → 폭탄 튜토리얼
         findViewById<MaterialButton>(R.id.btnNext).setOnClickListener {
-            SFXManager.playClick(this)//클릭음 재생
+            SFXManager.playClick(this)
             goToBombTutorial()
         }
     }

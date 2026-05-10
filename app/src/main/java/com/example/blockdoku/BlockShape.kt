@@ -1,4 +1,4 @@
-package com.yourpackage.blockdoku.model
+package com.example.blockdoku
 
 /**
  * 블록 형태 데이터 클래스

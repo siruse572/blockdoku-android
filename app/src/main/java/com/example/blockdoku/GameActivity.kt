@@ -16,7 +16,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.gridlayout.widget.GridLayout
 import com.google.android.material.button.MaterialButton
-import com.yourpackage.blockdoku.model.BlockShape
 
 /**
  * 게임 메인 화면

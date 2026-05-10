@@ -1,4 +1,4 @@
-package com.yourpackage.blockdoku.adapter
+package com.example.blockdoku
 
 import android.graphics.Color
 import android.view.DragEvent
@@ -7,10 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.blockdoku.R
-import com.yourpackage.blockdoku.model.BlockShape
 
 /**
  * 실제 게임 플레이용 9x9 보드 어댑터 (드래그 앤 드롭 인터랙션 지원)
@@ -25,8 +22,6 @@ import com.yourpackage.blockdoku.model.BlockShape
  *     onGameOver = { /* 게임 오버 처리 */ }
  * )
  *
- * val layoutManager = GridLayoutManager(this, 9)
- * rvGameBoard.layoutManager = layoutManager
  * rvGameBoard.adapter = adapter
  * ```
  */
@@ -61,17 +56,20 @@ class GameBoardAdapter(
         val txtBombTimer: TextView = itemView.findViewById(R.id.txtBombTimer)
 
         init {
-            // 클릭 리스너
             itemView.setOnClickListener {
-                val position = adapterPosition
+                val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onCellClick?.invoke(position)
                 }
             }
 
-            // 드래그 앤 드롭 리스너
             itemView.setOnDragListener { view, event ->
-                handleDragEvent(view, event, adapterPosition)
+                val position = bindingAdapterPosition
+                if (position == RecyclerView.NO_POSITION) {
+                    false
+                } else {
+                    handleDragEvent(view, event, position)
+                }
             }
         }
     }
@@ -84,7 +82,6 @@ class GameBoardAdapter(
     }
 
     override fun onBindViewHolder(holder: GameCellViewHolder, position: Int) {
-        // 셀 상태에 따라 UI 업데이트 (배경은 투명, 그리드 라인은 RecyclerView 배경으로 처리)
         when (boardState[position]) {
             -1 -> {
                 // 폭발한 칸 (사용 불가)
@@ -92,17 +89,20 @@ class GameBoardAdapter(
                 holder.cellFilled.setBackgroundResource(R.drawable.gradient_bomb_exploded)
                 holder.cellBomb.visibility = View.GONE
             }
+
             0 -> {
                 // 빈 칸
                 holder.cellFilled.visibility = View.GONE
                 holder.cellBomb.visibility = View.GONE
             }
+
             1 -> {
                 // 채워진 칸
                 holder.cellFilled.visibility = View.VISIBLE
                 holder.cellFilled.setBackgroundResource(R.drawable.gradient_block_purple)
                 holder.cellBomb.visibility = View.GONE
             }
+
             2 -> {
                 // 폭탄 칸
                 holder.cellFilled.visibility = View.GONE
@@ -120,25 +120,24 @@ class GameBoardAdapter(
     private fun handleDragEvent(view: View, event: DragEvent, position: Int): Boolean {
         return when (event.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
-                // 드래그 시작 - 블록 정보 저장
                 val blockData = event.localState as? BlockShape
                 draggingBlock = blockData
                 true
             }
+
             DragEvent.ACTION_DRAG_ENTERED -> {
-                // 드래그가 셀에 들어옴 - 하이라이트 표시
                 if (canPlaceBlock(position, draggingBlock)) {
-                    view.setBackgroundColor(Color.parseColor("#E0E7FF")) // 연보라색 하이라이트
+                    view.setBackgroundColor(Color.parseColor("#E0E7FF"))
                 }
                 true
             }
+
             DragEvent.ACTION_DRAG_EXITED -> {
-                // 드래그가 셀에서 나감 - 하이라이트 제거
                 view.background = null
                 true
             }
+
             DragEvent.ACTION_DROP -> {
-                // 블록 드롭
                 view.background = null
                 draggingBlock?.let { block ->
                     if (canPlaceBlock(position, block)) {
@@ -147,12 +146,13 @@ class GameBoardAdapter(
                 }
                 true
             }
+
             DragEvent.ACTION_DRAG_ENDED -> {
-                // 드래그 종료
                 view.background = null
                 draggingBlock = null
                 true
             }
+
             else -> false
         }
     }
@@ -169,14 +169,13 @@ class GameBoardAdapter(
         for ((rowOffset, colOffset) in block.cells) {
             val row = startRow + rowOffset
             val col = startCol + colOffset
-            val pos = row * 9 + col
 
-            // 범위 체크
             if (row < 0 || row >= 9 || col < 0 || col >= 9) {
                 return false
             }
 
-            // 이미 채워져 있거나 폭발한 칸인지 체크
+            val pos = row * 9 + col
+
             if (boardState[pos] != 0) {
                 return false
             }
@@ -192,7 +191,6 @@ class GameBoardAdapter(
         val startRow = startPosition / 9
         val startCol = startPosition % 9
 
-        // 블록 셀 채우기
         for ((rowOffset, colOffset) in block.cells) {
             val row = startRow + rowOffset
             val col = startCol + colOffset
@@ -202,29 +200,23 @@ class GameBoardAdapter(
 
         blocksPlaced++
 
-        // 블록 배치 콜백
         onBlockPlaced?.invoke(startPosition, block)
 
-        // 폭탄 타이머 감소
         decrementBombTimers()
 
-        // 라인/구역 체크 및 제거
         val clearedPositions = checkAndClearLines()
         if (clearedPositions.isNotEmpty()) {
             onLinesCleared?.invoke(clearedPositions)
 
-            // 점수 계산 (클리어한 라인/구역 수에 따라)
             val linesCleared = clearedPositions.size / 9
             currentScore += linesCleared * 100
             onScoreUpdate?.invoke(currentScore)
         }
 
-        // 폭탄 생성 체크 (4-5개 블록마다)
         if (blocksPlaced % 5 == 0) {
             spawnBomb()
         }
 
-        // 게임 오버 체크
         if (isGameOver()) {
             onGameOver?.invoke()
         }
@@ -240,14 +232,10 @@ class GameBoardAdapter(
 
         // 가로 라인 체크
         for (row in 0..8) {
-            var isFull = true
-            for (col in 0..8) {
-                val pos = row * 9 + col
-                if (boardState[pos] != 1) {
-                    isFull = false
-                    break
-                }
+            val isFull = (0..8).all { col ->
+                boardState[row * 9 + col] == 1
             }
+
             if (isFull) {
                 for (col in 0..8) {
                     toClear.add(row * 9 + col)
@@ -257,14 +245,10 @@ class GameBoardAdapter(
 
         // 세로 라인 체크
         for (col in 0..8) {
-            var isFull = true
-            for (row in 0..8) {
-                val pos = row * 9 + col
-                if (boardState[pos] != 1) {
-                    isFull = false
-                    break
-                }
+            val isFull = (0..8).all { row ->
+                boardState[row * 9 + col] == 1
             }
+
             if (isFull) {
                 for (row in 0..8) {
                     toClear.add(row * 9 + col)
@@ -276,6 +260,7 @@ class GameBoardAdapter(
         for (boxRow in 0..2) {
             for (boxCol in 0..2) {
                 var isFull = true
+
                 for (row in 0..2) {
                     for (col in 0..2) {
                         val pos = (boxRow * 3 + row) * 9 + (boxCol * 3 + col)
@@ -284,8 +269,10 @@ class GameBoardAdapter(
                             break
                         }
                     }
+
                     if (!isFull) break
                 }
+
                 if (isFull) {
                     for (row in 0..2) {
                         for (col in 0..2) {
@@ -296,7 +283,6 @@ class GameBoardAdapter(
             }
         }
 
-        // 제거
         for (pos in toClear) {
             boardState[pos] = 0
             bombTimers.remove(pos)
@@ -311,8 +297,9 @@ class GameBoardAdapter(
     private fun decrementBombTimers() {
         val toExplode = mutableListOf<Int>()
 
-        for ((pos, timer) in bombTimers) {
+        for ((pos, timer) in bombTimers.toMap()) {
             val newTimer = timer - 1
+
             if (newTimer <= 0) {
                 toExplode.add(pos)
             } else {
@@ -320,9 +307,8 @@ class GameBoardAdapter(
             }
         }
 
-        // 폭탄 폭발
         for (pos in toExplode) {
-            boardState[pos] = -1 // 사용 불가능한 칸
+            boardState[pos] = -1
             bombTimers.remove(pos)
         }
     }
@@ -342,10 +328,9 @@ class GameBoardAdapter(
     }
 
     /**
-     * 게임 오버 체크 (더 이상 블록을 놓을 수 없는지)
+     * 게임 오버 체크
      */
     private fun isGameOver(): Boolean {
-        // 간단한 구현: 빈 칸이 없으면 게임 오버
         return boardState.all { it != 0 }
     }
 
@@ -369,77 +354,4 @@ class GameBoardAdapter(
      * 보드 상태 가져오기
      */
     fun getBoardState(): IntArray = boardState.copyOf()
-}
-
-/**
- * 블록 형태 데이터 클래스
- */
-data class BlockShape(
-    val cells: List<Pair<Int, Int>>, // (행 오프셋, 열 오프셋) 리스트
-    val color: String = "#9333EA" // 기본 보라색
-) {
-    companion object {
-        // 미리 정의된 블록 형태들
-
-        // 1x1 블록
-        val SINGLE = BlockShape(listOf(0 to 0))
-
-        // 1x2 블록 (가로)
-        val HORIZONTAL_2 = BlockShape(listOf(0 to 0, 0 to 1))
-
-        // 2x1 블록 (세로)
-        val VERTICAL_2 = BlockShape(listOf(0 to 0, 1 to 0))
-
-        // 1x3 블록 (가로)
-        val HORIZONTAL_3 = BlockShape(listOf(0 to 0, 0 to 1, 0 to 2))
-
-        // 3x1 블록 (세로)
-        val VERTICAL_3 = BlockShape(listOf(0 to 0, 1 to 0, 2 to 0))
-
-        // 2x2 블록
-        val SQUARE_2 = BlockShape(listOf(
-            0 to 0, 0 to 1,
-            1 to 0, 1 to 1
-        ))
-
-        // 3x3 블록
-        val SQUARE_3 = BlockShape(listOf(
-            0 to 0, 0 to 1, 0 to 2,
-            1 to 0, 1 to 1, 1 to 2,
-            2 to 0, 2 to 1, 2 to 2
-        ))
-
-        // L자 블록
-        val L_SHAPE = BlockShape(listOf(
-            0 to 0,
-            1 to 0,
-            2 to 0, 2 to 1
-        ))
-
-        // T자 블록
-        val T_SHAPE = BlockShape(listOf(
-            0 to 0, 0 to 1, 0 to 2,
-            1 to 1
-        ))
-
-        // Z자 블록
-        val Z_SHAPE = BlockShape(listOf(
-            0 to 0, 0 to 1,
-            1 to 1, 1 to 2
-        ))
-
-        // 랜덤 블록 생성
-        fun random(): BlockShape {
-            val shapes = listOf(
-                SINGLE, HORIZONTAL_2, VERTICAL_2, HORIZONTAL_3, VERTICAL_3,
-                SQUARE_2, SQUARE_3, L_SHAPE, T_SHAPE, Z_SHAPE
-            )
-            return shapes.random()
-        }
-
-        // 3개의 랜덤 블록 생성
-        fun randomThree(): List<BlockShape> {
-            return List(3) { random() }
-        }
-    }
 }
